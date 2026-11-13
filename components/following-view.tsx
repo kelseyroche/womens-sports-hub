@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Team } from "@/lib/espn";
-import { LEAGUES, type LeagueId } from "@/lib/leagues";
+import { GROUPS, GROUP_BY_ID, type GroupId } from "@/lib/leagues";
 import { teamKey, useFollow } from "./follow";
 
 function Crest({ team }: { team: Team }) {
@@ -18,10 +18,11 @@ function Crest({ team }: { team: Team }) {
   );
 }
 
-export function FollowingView({ teams }: { teams: Record<LeagueId, Team[]> }) {
+export function FollowingView({ teams }: { teams: Record<GroupId, Team[]> }) {
   const { followed, toggle } = useFollow();
-  const [tab, setTab] = useState<LeagueId>("wnba");
+  const [tab, setTab] = useState<GroupId>("wnba");
   const count = followed.size;
+  const sport = GROUP_BY_ID[tab].sport;
 
   return (
     <>
@@ -38,12 +39,12 @@ export function FollowingView({ teams }: { teams: Record<LeagueId, Team[]> }) {
       <div className="follow-grid">
         <section>
           <div className="tabs" role="group" aria-label="League">
-            {LEAGUES.map((l) => {
-              const n = teams[l.id].filter((t) => followed.has(teamKey(l.id, t.id))).length;
+            {GROUPS.map((g) => {
+              const n = teams[g.id].filter((t) => followed.has(teamKey(g.sport, t.id))).length;
               return (
-                <button key={l.id} className="tab" aria-pressed={tab === l.id} onClick={() => setTab(l.id)}>
-                  <span className="dot" style={{ background: l.hue }} />
-                  {l.name}
+                <button key={g.id} className="tab" aria-pressed={tab === g.id} onClick={() => setTab(g.id)}>
+                  <span className="dot" style={{ background: g.hue }} />
+                  {g.label}
                   {n > 0 && ` ${n}`}
                 </button>
               );
@@ -51,12 +52,12 @@ export function FollowingView({ teams }: { teams: Record<LeagueId, Team[]> }) {
           </div>
           {teams[tab].length === 0 && <p className="note">Teams for this league didn’t load. Refresh to try again.</p>}
           {teams[tab].map((t) => {
-            const on = followed.has(teamKey(tab, t.id));
+            const on = followed.has(teamKey(sport, t.id));
             return (
               <div className="trow" key={t.id}>
                 <Crest team={t} />
                 <span className="nm">{t.name}</span>
-                <button className="fbtn" aria-pressed={on} onClick={() => toggle(teamKey(tab, t.id))}>
+                <button className="fbtn" aria-pressed={on} onClick={() => toggle(teamKey(sport, t.id))}>
                   {on ? "Following" : "Follow team"}
                 </button>
               </div>
@@ -69,11 +70,11 @@ export function FollowingView({ teams }: { teams: Record<LeagueId, Team[]> }) {
             {count === 1 ? "1 team followed" : `${count} teams followed`}. Followed teams stay above everything
             else on Tonight, even when they play late.
           </p>
-          {LEAGUES.flatMap((l) =>
-            teams[l.id]
-              .filter((t) => followed.has(teamKey(l.id, t.id)))
+          {GROUPS.flatMap((g) =>
+            teams[g.id]
+              .filter((t) => followed.has(teamKey(g.sport, t.id)))
               .map((t) => (
-                <div className="trow" key={teamKey(l.id, t.id)}>
+                <div className="trow" key={`${g.id}:${t.id}`}>
                   <Crest team={t} />
                   <span className="nm">{t.name}</span>
                 </div>

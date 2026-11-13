@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import { LEAGUES, LEAGUE_BY_ID, type League, type LeagueId } from "./leagues";
+import { GROUP_BY_ID, LEAGUES, LEAGUE_BY_ID, type GroupId, type League, type LeagueId } from "./leagues";
 import { addDays } from "./time";
 
 export type GameState = "upcoming" | "live" | "final";
@@ -67,8 +67,8 @@ function toGame(league: League, event: EspnEvent): Game | null {
   };
 }
 
-async function fetchLeagueDay(league: League, day: string): Promise<Game[]> {
-  const url = `https://site.api.espn.com/apis/site/v2/sports/${league.path}/scoreboard?dates=${day}&limit=100`;
+async function fetchLeagueDates(league: League, dates: string): Promise<Game[]> {
+  const url = `https://site.api.espn.com/apis/site/v2/sports/${league.path}/scoreboard?dates=${dates}&limit=200`;
   const res = await fetch(url);
   if (!res.ok) return [];
   const body = (await res.json()) as { events?: EspnEvent[] };
@@ -78,7 +78,7 @@ async function fetchLeagueDay(league: League, day: string): Promise<Game[]> {
 export async function getGamesForDay(day: string): Promise<Game[]> {
   "use cache";
   cacheLife("minutes");
-  const perLeague = await Promise.allSettled(LEAGUES.map((l) => fetchLeagueDay(l, day)));
+  const perLeague = await Promise.allSettled(LEAGUES.map((l) => fetchLeagueDates(l, day)));
   return perLeague
     .flatMap((r) => (r.status === "fulfilled" ? r.value : []))
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
@@ -87,32 +87,47 @@ export async function getGamesForDay(day: string): Promise<Game[]> {
 export async function getNextGames(fromDay: string, limit: number): Promise<Game[]> {
   "use cache";
   cacheLife("minutes");
+  const chunks = [[1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14]];
   const found: Game[] = [];
-  for (let i = 1; i <= 14 && found.length < limit; i++) {
-    const games = await getGamesForDay(addDays(fromDay, i));
-    found.push(...games.filter((g) => g.state === "upcoming"));
+  for (const chunk of chunks) {
+    const days = await Promise.all(chunk.map((n) => getGamesForDay(addDays(fromDay, n))));
+    found.push(...days.flat().filter((g) => g.state === "upcoming"));
+    if (found.length >= limit) break;
   }
-  return found.slice(0, limit);
+  return found.sort((a, b) => a.startsAt.localeCompare(b.startsAt)).slice(0, limit);
 }
 
 export type Team = { id: string; name: string; abbreviation: string; logo: string | null };
 
-export async function getTeams(leagueId: LeagueId): Promise<Team[]> {
+type EspnTeamsBody = {
+  sports?: {
+    leagues?: {
+      teams?: { team: { id: string; displayName: string; abbreviation?: string; logos?: { href: string }[] } }[];
+    }[];
+  }[];
+};
+
+async function fetchTeams(leagueId: LeagueId): Promise<Team[]> {
+  const league = LEAGUE_BY_ID[leagueId];
+  const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${league.path}/teams?limit=200`);
+  if (!res.ok) return [];
+  const body = (await res.json()) as EspnTeamsBody;
+  return (body.sports?.[0]?.leagues?.[0]?.teams ?? []).map(({ team }) => ({
+    id: team.id,
+    name: team.displayName,
+    abbreviation: team.abbreviation ?? team.displayName.slice(0, 3).toUpperCase(),
+    logo: team.logos?.[0]?.href ?? null,
+  }));
+}
+
+export async function getGroupTeams(groupId: GroupId): Promise<Team[]> {
   "use cache";
   cacheLife("days");
-  const league = LEAGUE_BY_ID[leagueId];
-  const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${league.path}/teams?limit=100`);
-  if (!res.ok) return [];
-  const body = (await res.json()) as {
-    sports?: { leagues?: { teams?: { team: { id: string; displayName: string; abbreviation?: string; logos?: { href: string }[] } }[] }[] }[];
-  };
-  const teams = body.sports?.[0]?.leagues?.[0]?.teams ?? [];
-  return teams
-    .map(({ team }) => ({
-      id: team.id,
-      name: team.displayName,
-      abbreviation: team.abbreviation ?? team.displayName.slice(0, 3).toUpperCase(),
-      logo: team.logos?.[0]?.href ?? null,
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const lists = await Promise.allSettled(GROUP_BY_ID[groupId].teamSources.map(fetchTeams));
+  const byId = new Map<string, Team>();
+  for (const r of lists) {
+    if (r.status !== "fulfilled") continue;
+    for (const t of r.value) if (!byId.has(t.id)) byId.set(t.id, t);
+  }
+  return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name));
 }

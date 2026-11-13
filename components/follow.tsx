@@ -12,7 +12,7 @@ type FollowContext = {
 
 const Ctx = createContext<FollowContext | null>(null);
 
-export const teamKey = (league: string, teamId: string) => `${league}:${teamId}`;
+export const teamKey = (sport: string, teamId: string) => `${sport}:${teamId}`;
 
 export function FollowProvider({ children }: { children: ReactNode }) {
   const [keys, setKeys] = useState<string[]>([]);

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { GROUPS } from "@/lib/leagues";
 
 const STRIPES = ["#FF9A2E", "#0EA66B", "#FF5AA5", "#BBA7F0", "#F5E50A"];
 const FOOT_STRIPES = ["#FF9A2E", "#0EA66B", "#FF5AA5", "#BBA7F0", "#F8F3E9"];
@@ -67,15 +68,13 @@ export function Footer() {
         <div className="fcols">
           <div className="fcol">
             <h3>Leagues</h3>
-            <span>WNBA</span>
-            <span>NWSL</span>
-            <span>Women’s Super League</span>
-            <span>NCAA women’s basketball</span>
+            {GROUPS.map((g) => (
+              <span key={g.id}>{g.label}</span>
+            ))}
           </div>
           <div className="fcol">
             <h3>Coming later</h3>
             <span>PWHL</span>
-            <span>USWNT</span>
           </div>
         </div>
       </div>

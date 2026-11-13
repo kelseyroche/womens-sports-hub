@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import type { Game } from "@/lib/espn";
+import { LEAGUE_BY_ID, GROUP_BY_ID } from "@/lib/leagues";
 import { teamKey, useFollow } from "./follow";
 import { GameTile } from "./game-tile";
 
 export function TonightView({ games, dateLabel }: { games: Game[]; dateLabel: string }) {
   const { ready, followed } = useFollow();
-  const isPinned = (g: Game) =>
-    followed.has(teamKey(g.league, g.home.id)) || followed.has(teamKey(g.league, g.away.id));
+  const isPinned = (g: Game) => {
+    const { sport } = GROUP_BY_ID[LEAGUE_BY_ID[g.league].group];
+    return followed.has(teamKey(sport, g.home.id)) || followed.has(teamKey(sport, g.away.id));
+  };
   const pinned = games.filter(isPinned);
   const rest = games.filter((g) => !isPinned(g));
   const liveCount = games.filter((g) => g.state === "live").length;

@@ -1,18 +1,20 @@
 "use client";
 
 import type { Game, Side } from "@/lib/espn";
-import { LEAGUE_BY_ID, type LeagueId } from "@/lib/leagues";
+import { GROUP_BY_ID, LEAGUE_BY_ID, type GroupId } from "@/lib/leagues";
 import { clockTime } from "@/lib/time";
 import { teamKey, useFollow } from "./follow";
 
 const INK = "#0C3B2E";
 const CHALK = "#F8F3E9";
 
-const ORNAMENTS: Record<LeagueId, string> = {
+const ORNAMENTS: Record<GroupId, string> = {
   wnba: '<rect x="65" y="100" width="70" height="100"/><path d="M65 100a35 35 0 0 1 70 0"/><path d="M15 200v-50a85 85 0 0 1 170 0v50"/>',
   ncaaw: '<circle cx="100" cy="100" r="70"/><circle cx="100" cy="100" r="24"/><path d="M100 0v200"/>',
   nwsl: '<rect x="20" y="40" width="160" height="170"/><rect x="62" y="40" width="76" height="52"/><path d="M68 150a44 44 0 0 0 64 0"/><circle cx="100" cy="132" r="2.5"/>',
-  wsl: '<path d="M20 60a60 60 0 0 1 60 -60"/><rect x="20" y="60" width="110" height="140"/><rect x="20" y="100" width="44" height="60"/>',
+  england: '<path d="M20 60a60 60 0 0 1 60 -60"/><rect x="20" y="60" width="110" height="140"/><rect x="20" y="100" width="44" height="60"/>',
+  europe: '<circle cx="100" cy="100" r="44"/><path d="M0 100h200"/><circle cx="100" cy="100" r="2.5"/><path d="M60 0v30h80V0"/>',
+  national: '<circle cx="100" cy="100" r="80"/><path d="M20 100h160"/><path d="M100 20c-42 32-42 128 0 160"/><path d="M100 20c42 32 42 128 0 160"/>',
 };
 
 export type TileSize = "big" | "wide" | "small";
@@ -33,14 +35,15 @@ function Crest({ side }: { side: Side }) {
 export function GameTile({ game, size }: { game: Game; size: TileSize }) {
   const { followed, toggle } = useFollow();
   const league = LEAGUE_BY_ID[game.league];
+  const group = GROUP_BY_ID[league.group];
   const live = game.state === "live";
   const final = game.state === "final";
   const upcoming = game.state === "upcoming";
 
-  const background = live ? INK : final ? CHALK : league.hue;
+  const background = live ? INK : final ? CHALK : group.hue;
   const color = live ? CHALK : INK;
-  const borderColor = live ? INK : league.hue;
-  const ornamentStroke = live || final ? league.hue : INK;
+  const borderColor = live ? INK : group.hue;
+  const ornamentStroke = live || final ? group.hue : INK;
   const ornamentOpacity = live ? 0.95 : final ? 0.5 : 0.32;
 
   const sides = [game.away, game.home];
@@ -54,7 +57,7 @@ export function GameTile({ game, size }: { game: Game; size: TileSize }) {
         aria-hidden="true"
         viewBox="0 0 200 200"
         style={{ stroke: ornamentStroke, opacity: ornamentOpacity }}
-        dangerouslySetInnerHTML={{ __html: ORNAMENTS[game.league] }}
+        dangerouslySetInnerHTML={{ __html: ORNAMENTS[group.id] }}
       />
       <div className="t-top">
         <span>{league.name}</span>
@@ -100,14 +103,14 @@ export function GameTile({ game, size }: { game: Game; size: TileSize }) {
         </span>
         <span className="acts">
           {sides.map((side) => {
-            const on = followed.has(teamKey(game.league, side.id));
+            const on = followed.has(teamKey(group.sport, side.id));
             return (
               <button
                 key={side.id}
                 className="lnk"
                 aria-pressed={on}
                 style={{ color }}
-                onClick={() => toggle(teamKey(game.league, side.id))}
+                onClick={() => toggle(teamKey(group.sport, side.id))}
               >
                 {on ? "Following" : "Follow"} {side.abbreviation}
               </button>
