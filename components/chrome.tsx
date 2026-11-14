@@ -83,6 +83,11 @@ export function Footer() {
       </div>
       <div className="wrap fine">
         Scores and schedules come from ESPN. Times are Eastern. No betting, ever.
+        <span className="fine-links">
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/support">Support</Link>
+        </span>
       </div>
       <div className="foot-stripes" aria-hidden="true">
         {Array.from({ length: 40 }, (_, i) => (

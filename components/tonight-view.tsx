@@ -8,7 +8,7 @@ import { GameTile } from "./game-tile";
 
 export function TonightView({ games, dateLabel, title }: { games: Game[]; dateLabel: string; title: "Today" | "Tomorrow" }) {
   const when = title.toLowerCase();
-  const { ready } = useFollow();
+  const { ready, followed } = useFollow();
   const { pinned, featured, more } = usePartition(games);
   const liveCount = games.filter((g) => g.state === "live").length;
   const leagueCount = new Set(games.map((g) => g.league)).size;
@@ -34,6 +34,13 @@ export function TonightView({ games, dateLabel, title }: { games: Game[]; dateLa
               {pinned.map((g) => (
                 <GameTile key={g.id} game={g} size="big" />
               ))}
+            </div>
+          ) : followed.size > 0 ? (
+            <div className="invite">
+              <p>None of your teams play {when}. Their next games are on the Upcoming tab.</p>
+              <Link className="btn ghost" href="/upcoming">
+                See upcoming games
+              </Link>
             </div>
           ) : (
             <div className="invite">
