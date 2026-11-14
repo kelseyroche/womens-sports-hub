@@ -189,7 +189,9 @@ function Lineups({ detail }: { detail: GameDetail }) {
                   {group.map((p, i) => (
                     <div className="lu-row" key={`${p.name}-${i}`}>
                       <span className="lu-num n">{p.jersey}</span>
-                      <span className="lu-name">{p.name}</span>
+                      <span className="lu-name">
+                        {p.id ? <Link href={`/player/${detail.league}/${p.id}`}>{p.name}</Link> : p.name}
+                      </span>
                       <span className="lu-pos">{p.position}</span>
                       <span className="lu-flag">{p.wentOff ? "Off" : p.cameOn ? "On" : ""}</span>
                     </div>
@@ -227,7 +229,7 @@ function BoxScores({ detail }: { detail: GameDetail }) {
               <tbody>
                 {b.rows.map((r, i) => (
                   <tr key={`${r.name}-${i}`}>
-                    <th scope="row">{r.name}</th>
+                    <th scope="row">{r.id ? <Link href={`/player/${detail.league}/${r.id}`}>{r.name}</Link> : r.name}</th>
                     {r.stats.map((v, j) => (
                       <td className="n" key={j}>
                         {v}

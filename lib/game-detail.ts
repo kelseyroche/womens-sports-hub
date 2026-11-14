@@ -27,6 +27,7 @@ export type TimelineItem = {
 export type StatRow = { label: string; home: string; away: string };
 
 export type LineupPlayer = {
+  id: string | null;
   name: string;
   jersey: string;
   position: string;
@@ -37,7 +38,7 @@ export type LineupPlayer = {
 
 export type Lineup = { teamId: string; teamName: string; formation: string | null; players: LineupPlayer[] };
 
-export type BoxScore = { teamId: string; teamName: string; labels: string[]; rows: { name: string; stats: string[] }[] };
+export type BoxScore = { teamId: string; teamName: string; labels: string[]; rows: { id: string | null; name: string; stats: string[] }[] };
 
 export type GameDetail = {
   league: LeagueId;
@@ -86,7 +87,7 @@ type Play = {
 type RosterEntry = {
   starter?: boolean;
   jersey?: string;
-  athlete?: { displayName?: string };
+  athlete?: { id?: string; displayName?: string };
   position?: { abbreviation?: string };
   subbedIn?: boolean;
   subbedOut?: boolean;
@@ -106,7 +107,7 @@ type Summary = {
     teams?: { team: { id: string }; statistics?: { label?: string; displayValue?: string }[] }[];
     players?: {
       team: { id: string; displayName: string };
-      statistics?: { labels?: string[]; athletes?: { athlete?: { displayName?: string }; stats?: string[] }[] }[];
+      statistics?: { labels?: string[]; athletes?: { athlete?: { id?: string; displayName?: string }; stats?: string[] }[] }[];
     }[];
   };
   rosters?: { team: { id: string; displayName: string }; formation?: string; roster?: RosterEntry[] }[];
@@ -202,6 +203,7 @@ function toLineups(summary: Summary): Lineup[] {
     teamName: r.team.displayName,
     formation: r.formation ?? null,
     players: (r.roster ?? []).map((p) => ({
+      id: p.athlete?.id ?? null,
       name: p.athlete?.displayName ?? "Unknown",
       jersey: p.jersey ?? "",
       position: p.position?.abbreviation ?? "",
@@ -218,7 +220,7 @@ function toBoxScores(summary: Summary): BoxScore[] {
     if (!group?.labels) return [];
     const rows = (group.athletes ?? [])
       .filter((a) => a.stats && a.stats.length > 0)
-      .map((a) => ({ name: a.athlete?.displayName ?? "Unknown", stats: a.stats ?? [] }));
+      .map((a) => ({ id: a.athlete?.id ?? null, name: a.athlete?.displayName ?? "Unknown", stats: a.stats ?? [] }));
     return rows.length > 0 ? [{ teamId: t.team.id, teamName: t.team.displayName, labels: group.labels, rows }] : [];
   });
 }

@@ -35,3 +35,7 @@ export function dayLabel(iso: string, today: string): string {
 export function dayToDate(day: string): Date {
   return new Date(Date.UTC(+day.slice(0, 4), +day.slice(4, 6) - 1, +day.slice(6, 8), 12));
 }
+
+export function shortDate(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", { timeZone: ZONE, month: "short", day: "numeric" }).format(new Date(iso));
+}
