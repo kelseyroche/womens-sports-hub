@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { Game, Side } from "@/lib/espn";
 import { GROUP_BY_ID, LEAGUE_BY_ID, type GroupId } from "@/lib/leagues";
 import { clockTime } from "@/lib/time";
@@ -12,6 +13,7 @@ const ORNAMENTS: Record<GroupId, string> = {
   wnba: '<rect x="65" y="100" width="70" height="100"/><path d="M65 100a35 35 0 0 1 70 0"/><path d="M15 200v-50a85 85 0 0 1 170 0v50"/>',
   ncaaw: '<circle cx="100" cy="100" r="70"/><circle cx="100" cy="100" r="24"/><path d="M100 0v200"/>',
   nwsl: '<rect x="20" y="40" width="160" height="170"/><rect x="62" y="40" width="76" height="52"/><path d="M68 150a44 44 0 0 0 64 0"/><circle cx="100" cy="132" r="2.5"/>',
+  ncaav: '<rect x="15" y="40" width="170" height="130"/><path d="M100 40v130"/><path d="M45 40v130M155 40v130"/>',
   england: '<path d="M20 60a60 60 0 0 1 60 -60"/><rect x="20" y="60" width="110" height="140"/><rect x="20" y="100" width="44" height="60"/>',
   europe: '<circle cx="100" cy="100" r="44"/><path d="M0 100h200"/><circle cx="100" cy="100" r="2.5"/><path d="M60 0v30h80V0"/>',
   national: '<circle cx="100" cy="100" r="80"/><path d="M20 100h160"/><path d="M100 20c-42 32-42 128 0 160"/><path d="M100 20c42 32 42 128 0 160"/>',
@@ -76,7 +78,10 @@ export function GameTile({ game, size }: { game: Game; size: TileSize }) {
         {sides.map((side, i) => (
           <div className="team" key={side.id} style={{ gridRow: i + 1 }}>
             <Crest side={side} />
-            <b>{side.name}</b>
+            <b>
+              {side.rank && <span className="rank n">{side.rank}</span>}
+              {side.name}
+            </b>
           </div>
         ))}
         {upcoming ? (
@@ -102,6 +107,11 @@ export function GameTile({ game, size }: { game: Game; size: TileSize }) {
           {game.venue ? ` · ${game.venue}` : ""}
         </span>
         <span className="acts">
+          {!upcoming && (
+            <Link className="lnk" href={`/game/${game.league}/${game.eventId}`} style={{ color }}>
+              Game details
+            </Link>
+          )}
           {sides.map((side) => {
             const on = followed.has(teamKey(group.sport, side.id));
             return (

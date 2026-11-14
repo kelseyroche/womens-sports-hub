@@ -10,10 +10,12 @@ export type Side = {
   abbreviation: string;
   logo: string | null;
   score: number | null;
+  rank: number | null;
 };
 
 export type Game = {
   id: string;
+  eventId: string;
   league: LeagueId;
   startsAt: string;
   state: GameState;
@@ -26,6 +28,7 @@ export type Game = {
 type EspnCompetitor = {
   homeAway: "home" | "away";
   score?: string;
+  curatedRank?: { current: number };
   team: { id: string; displayName: string; abbreviation?: string; logo?: string };
 };
 
@@ -46,6 +49,7 @@ function toSide(c: EspnCompetitor, state: GameState): Side {
     abbreviation: c.team.abbreviation ?? c.team.displayName.slice(0, 3).toUpperCase(),
     logo: c.team.logo ?? null,
     score: Number.isNaN(score) ? null : score,
+    rank: c.curatedRank && c.curatedRank.current >= 1 && c.curatedRank.current <= 25 ? c.curatedRank.current : null,
   };
 }
 
@@ -57,6 +61,7 @@ function toGame(league: League, event: EspnEvent): Game | null {
   const state = STATE_MAP[event.status.type.state];
   return {
     id: `${league.id}-${event.id}`,
+    eventId: event.id,
     league: league.id,
     startsAt: event.date,
     state,
@@ -109,7 +114,7 @@ type EspnTeamsBody = {
 
 async function fetchTeams(leagueId: LeagueId): Promise<Team[]> {
   const league = LEAGUE_BY_ID[leagueId];
-  const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${league.path}/teams?limit=200`);
+  const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${league.path}/teams?limit=500`);
   if (!res.ok) return [];
   const body = (await res.json()) as EspnTeamsBody;
   return (body.sports?.[0]?.leagues?.[0]?.teams ?? []).map(({ team }) => ({

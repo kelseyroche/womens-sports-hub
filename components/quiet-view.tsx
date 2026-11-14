@@ -3,7 +3,7 @@ import type { Game } from "@/lib/espn";
 import { clockTime, dayLabel } from "@/lib/time";
 import { GameTile } from "./game-tile";
 
-export function QuietView({ dateLabel, next, today }: { dateLabel: string; next: Game[]; today: string }) {
+export function QuietView({ dateLabel, next, today, when }: { dateLabel: string; next: Game[]; today: string; when: "tonight" | "tomorrow" }) {
   const first = next[0];
   const firstTime = first ? clockTime(first.startsAt) : null;
   return (
@@ -14,12 +14,12 @@ export function QuietView({ dateLabel, next, today }: { dateLabel: string; next:
           <h1 className="cd">
             Nothing
             <br />
-            on tonight.
+            on {when}.
           </h1>
           <p className="lede">
             {first && firstTime
-              ? `None of your leagues plays tonight. The next game is ${dayLabel(first.startsAt, today).toLowerCase()} at ${firstTime.tm} ${firstTime.ap} Eastern.`
-              : "None of your leagues plays tonight, and nothing is scheduled in the next two weeks."}
+              ? `None of your leagues plays ${when}. The next game is ${dayLabel(first.startsAt, today).toLowerCase()} at ${firstTime.tm} ${firstTime.ap} Eastern.`
+              : `None of your leagues plays ${when}, and nothing is scheduled in the next two weeks.`}
           </p>
           <div className="btnrow">
             <Link className="btn" href="/following">

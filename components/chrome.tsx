@@ -45,6 +45,8 @@ export function Nav() {
   const pathname = usePathname();
   const links = [
     { href: "/", label: "Tonight" },
+    { href: "/tomorrow", label: "Tomorrow" },
+    { href: "/upcoming", label: "Upcoming" },
     { href: "/following", label: "Following" },
   ];
   return (

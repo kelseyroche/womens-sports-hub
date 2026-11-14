@@ -31,3 +31,7 @@ export function dayLabel(iso: string, today: string): string {
   if (day === addDays(today, 1)) return "Tomorrow";
   return new Intl.DateTimeFormat("en-US", { timeZone: ZONE, weekday: "long" }).format(new Date(iso));
 }
+
+export function dayToDate(day: string): Date {
+  return new Date(Date.UTC(+day.slice(0, 4), +day.slice(4, 6) - 1, +day.slice(6, 8), 12));
+}

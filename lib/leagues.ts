@@ -1,18 +1,20 @@
-export type Sport = "basketball" | "soccer";
+export type Sport = "basketball" | "soccer" | "volleyball";
 
-export type GroupId = "wnba" | "ncaaw" | "nwsl" | "england" | "europe" | "national";
+export type GroupId = "wnba" | "ncaaw" | "ncaav" | "nwsl" | "england" | "europe" | "national";
 
 export type Group = {
   id: GroupId;
   label: string;
   sport: Sport;
   hue: string;
+  crowded?: boolean;
   teamSources: LeagueId[];
 };
 
 export const GROUPS: Group[] = [
   { id: "wnba", label: "WNBA", sport: "basketball", hue: "#FF9A2E", teamSources: ["wnba"] },
-  { id: "ncaaw", label: "NCAA women's basketball", sport: "basketball", hue: "#BBA7F0", teamSources: ["ncaaw"] },
+  { id: "ncaaw", label: "NCAA women's basketball", sport: "basketball", hue: "#BBA7F0", crowded: true, teamSources: ["ncaaw"] },
+  { id: "ncaav", label: "NCAA volleyball", sport: "volleyball", hue: "#F2545B", crowded: true, teamSources: ["ncaav"] },
   { id: "nwsl", label: "NWSL", sport: "soccer", hue: "#0EA66B", teamSources: ["nwsl"] },
   { id: "england", label: "England", sport: "soccer", hue: "#FF5AA5", teamSources: ["wsl"] },
   { id: "europe", label: "Europe", sport: "soccer", hue: "#4DB5FF", teamSources: ["uwcl", "liga-f", "premiere-ligue"] },
@@ -24,6 +26,7 @@ export const GROUP_BY_ID = Object.fromEntries(GROUPS.map((g) => [g.id, g])) as R
 export type LeagueId =
   | "wnba"
   | "ncaaw"
+  | "ncaav"
   | "nwsl"
   | "nwsl-cup"
   | "wsl"
@@ -52,6 +55,7 @@ export type League = {
 export const LEAGUES: League[] = [
   { id: "wnba", name: "WNBA", path: "basketball/wnba", group: "wnba" },
   { id: "ncaaw", name: "NCAA women's basketball", path: "basketball/womens-college-basketball", group: "ncaaw" },
+  { id: "ncaav", name: "NCAA women's volleyball", path: "volleyball/womens-college-volleyball", group: "ncaav" },
   { id: "nwsl", name: "NWSL", path: "soccer/usa.nwsl", group: "nwsl" },
   { id: "nwsl-cup", name: "NWSL Challenge Cup", path: "soccer/usa.nwsl.cup", group: "nwsl" },
   { id: "wsl", name: "Women's Super League", path: "soccer/eng.w.1", group: "england" },

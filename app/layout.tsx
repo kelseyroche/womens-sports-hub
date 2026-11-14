@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Archivo } from "next/font/google";
 import { Band, Footer, Nav } from "@/components/chrome";
 import { FollowProvider } from "@/components/follow";
@@ -22,7 +23,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <FollowProvider>
           <Band />
-          <Nav />
+          <Suspense
+            fallback={
+              <nav className="nav" aria-label="Main">
+                <div className="wrap" style={{ minHeight: 64 }} />
+              </nav>
+            }
+          >
+            <Nav />
+          </Suspense>
           <main className="wrap">{children}</main>
           <Footer />
         </FollowProvider>

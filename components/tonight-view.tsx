@@ -2,18 +2,14 @@
 
 import Link from "next/link";
 import type { Game } from "@/lib/espn";
-import { LEAGUE_BY_ID, GROUP_BY_ID } from "@/lib/leagues";
-import { teamKey, useFollow } from "./follow";
+import { useFollow } from "./follow";
+import { CompactRow, usePartition } from "./game-list";
 import { GameTile } from "./game-tile";
 
-export function TonightView({ games, dateLabel }: { games: Game[]; dateLabel: string }) {
-  const { ready, followed } = useFollow();
-  const isPinned = (g: Game) => {
-    const { sport } = GROUP_BY_ID[LEAGUE_BY_ID[g.league].group];
-    return followed.has(teamKey(sport, g.home.id)) || followed.has(teamKey(sport, g.away.id));
-  };
-  const pinned = games.filter(isPinned);
-  const rest = games.filter((g) => !isPinned(g));
+export function TonightView({ games, dateLabel, title }: { games: Game[]; dateLabel: string; title: "Tonight" | "Tomorrow" }) {
+  const when = title.toLowerCase();
+  const { ready } = useFollow();
+  const { pinned, featured, more } = usePartition(games);
   const liveCount = games.filter((g) => g.state === "live").length;
   const leagueCount = new Set(games.map((g) => g.league)).size;
 
@@ -22,7 +18,7 @@ export function TonightView({ games, dateLabel }: { games: Game[]; dateLabel: st
       <div className="head">
         <div>
           <div className="cd date">{dateLabel}</div>
-          <h1 className="cd">Tonight</h1>
+          <h1 className="cd">{title}</h1>
         </div>
         <p className="summary">
           {games.length} {games.length === 1 ? "game" : "games"} across {leagueCount}{" "}
@@ -49,15 +45,23 @@ export function TonightView({ games, dateLabel }: { games: Game[]; dateLabel: st
           )}
         </section>
       )}
-      {rest.length > 0 && (
+      {featured.length > 0 && (
         <section className="section">
-          <h2 className="cd label">Everything else tonight</h2>
+          <h2 className="cd label">Everything else {when}</h2>
           <div className="mosaic">
-            {rest.map((g) => (
+            {featured.map((g) => (
               <GameTile key={g.id} game={g} size={g.state === "live" ? "wide" : "small"} />
             ))}
           </div>
         </section>
+      )}
+      {more.length > 0 && (
+        <details className="more">
+          <summary>All other college games ({more.length})</summary>
+          {more.map((g) => (
+            <CompactRow key={g.id} game={g} />
+          ))}
+        </details>
       )}
     </>
   );

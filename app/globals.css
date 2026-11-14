@@ -375,6 +375,18 @@ main {
   font-size: 18px;
 }
 
+.rank {
+  display: inline-block;
+  min-width: 1.7em;
+  margin-right: 6px;
+  padding: 1px 4px;
+  text-align: center;
+  font-size: 0.7em;
+  font-weight: 800;
+  border: 1.5px solid currentColor;
+  vertical-align: 0.15em;
+}
+
 .crest {
   border-radius: 50%;
   display: inline-flex;
@@ -745,5 +757,382 @@ footer.site {
   }
   .tile:hover {
     transform: translateY(-2px);
+  }
+}
+
+.more summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 18px;
+  padding: 12px 0;
+  min-height: 44px;
+}
+
+.more-row {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
+  gap: 4px 14px;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule);
+  font-weight: 600;
+}
+
+.more-row .who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.more-row .lg {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--soft);
+}
+
+.more-row .sc {
+  text-align: right;
+  font-weight: 800;
+}
+
+.search {
+  width: 100%;
+  min-height: 48px;
+  margin: 6px 0 8px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  background: transparent;
+  border: 2px solid var(--ink);
+}
+
+.search::placeholder {
+  color: var(--soft);
+}
+
+a.more-row {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.more-row:hover .who span:first-child {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.gd-back {
+  align-self: flex-start;
+  font-weight: 700;
+  font-size: 15px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.gd-board {
+  border: 2px solid;
+  padding: 18px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.gd-teams {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gd-team {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.gd-crest {
+  width: 64px;
+  height: 64px;
+}
+
+.gd-name b {
+  display: block;
+  font-size: clamp(22px, 4vw, 34px);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.gd-rec {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.75;
+}
+
+.gd-score {
+  font-size: clamp(88px, 16vw, 150px);
+  text-align: right;
+}
+
+.gd-score small {
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-stretch: 100%;
+  font-size: 16px;
+  font-weight: 700;
+  margin-left: 3px;
+}
+
+.gd-lines {
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  font-weight: 700;
+}
+
+.gd-lines-row {
+  display: flex;
+  gap: 4px;
+  padding: 5px 0;
+  border-top: 1px solid currentColor;
+}
+
+.gd-lines-row span {
+  flex: 1;
+  text-align: right;
+}
+
+.gd-lines-row .gd-lines-name {
+  flex: 0 0 56px;
+  text-align: left;
+}
+
+.gd-meta {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tl {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tl-row {
+  display: grid;
+  grid-template-columns: 96px 22px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.tl-clock {
+  font-weight: 700;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.tl-goal,
+.tl-score {
+  box-shadow: inset 4px 0 0 var(--ink);
+  padding-left: 12px;
+}
+
+.tl-goal .tl-title,
+.tl-score .tl-title {
+  font-size: 19px;
+}
+
+.tl-what {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tl-title {
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.tl-detail {
+  font-size: 14px;
+  color: var(--soft);
+}
+
+.tl-score {
+  font-size: 30px;
+}
+
+.tl-period .tl-title,
+.tl-sub .tl-title {
+  font-weight: 600;
+}
+
+.tl-period {
+  background: rgba(12, 59, 46, 0.06);
+}
+
+.ev-mark {
+  display: inline-block;
+  margin-top: 3px;
+}
+
+.ev-goal {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.ev-card {
+  width: 12px;
+  height: 17px;
+  border: 1.5px solid var(--ink);
+  margin-left: 2px;
+}
+
+.ev-sub {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 14px solid var(--emerald);
+}
+
+.ev-tick {
+  width: 16px;
+  height: 2px;
+  margin-top: 10px;
+  background: var(--ink);
+}
+
+.st-head {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.st-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 56px;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.st-val {
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.st-val:last-child {
+  text-align: right;
+}
+
+.st-mid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.st-bar {
+  display: block;
+  height: 6px;
+  background: var(--rule);
+}
+
+.st-bar i {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+}
+
+.lu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px 40px;
+}
+
+.lu-team {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.lu-sub {
+  padding: 10px 0 2px;
+}
+
+.lu-row {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto 32px;
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--rule);
+  font-weight: 600;
+  align-items: baseline;
+}
+
+.lu-pos {
+  font-size: 12px;
+  color: var(--soft);
+}
+
+.lu-flag {
+  font-size: 12px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.bx {
+  margin-bottom: 20px;
+}
+
+.bx-scroll {
+  overflow-x: auto;
+}
+
+.bx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.bx-table th,
+.bx-table td {
+  padding: 7px 10px;
+  text-align: right;
+  border-top: 1px solid var(--rule);
+}
+
+.bx-table th:first-child {
+  text-align: left;
+  font-weight: 700;
+  position: sticky;
+  left: 0;
+  background: var(--chalk);
+}
+
+.bx-table thead th {
+  font-weight: 800;
+}
+
+@media (max-width: 700px) {
+  .lu-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .gd-crest {
+    width: 48px;
+    height: 48px;
+  }
+  .tl-row {
+    grid-template-columns: 56px 18px minmax(0, 1fr) auto;
+    gap: 10px;
   }
 }

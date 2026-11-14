@@ -18,11 +18,16 @@ function Crest({ team }: { team: Team }) {
   );
 }
 
+const PAGE_SIZE = 60;
+
 export function FollowingView({ teams }: { teams: Record<GroupId, Team[]> }) {
   const { followed, toggle } = useFollow();
   const [tab, setTab] = useState<GroupId>("wnba");
   const count = followed.size;
   const sport = GROUP_BY_ID[tab].sport;
+  const [query, setQuery] = useState("");
+  const matches = teams[tab].filter((t) => t.name.toLowerCase().includes(query.trim().toLowerCase()));
+  const visible = query.trim() ? matches : matches.slice(0, PAGE_SIZE);
 
   return (
     <>
@@ -42,7 +47,10 @@ export function FollowingView({ teams }: { teams: Record<GroupId, Team[]> }) {
             {GROUPS.map((g) => {
               const n = teams[g.id].filter((t) => followed.has(teamKey(g.sport, t.id))).length;
               return (
-                <button key={g.id} className="tab" aria-pressed={tab === g.id} onClick={() => setTab(g.id)}>
+                <button key={g.id} className="tab" aria-pressed={tab === g.id} onClick={() => {
+                    setTab(g.id);
+                    setQuery("");
+                  }}>
                   <span className="dot" style={{ background: g.hue }} />
                   {g.label}
                   {n > 0 && ` ${n}`}
@@ -50,8 +58,18 @@ export function FollowingView({ teams }: { teams: Record<GroupId, Team[]> }) {
               );
             })}
           </div>
+          {teams[tab].length > PAGE_SIZE && (
+            <input
+              className="search"
+              type="search"
+              aria-label="Search teams"
+              placeholder={`Search ${teams[tab].length} teams`}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          )}
           {teams[tab].length === 0 && <p className="note">Teams for this league didn’t load. Refresh to try again.</p>}
-          {teams[tab].map((t) => {
+          {visible.map((t) => {
             const on = followed.has(teamKey(sport, t.id));
             return (
               <div className="trow" key={t.id}>
@@ -63,6 +81,12 @@ export function FollowingView({ teams }: { teams: Record<GroupId, Team[]> }) {
               </div>
             );
           })}
+          {query.trim() && matches.length === 0 && <p className="note">No teams match “{query.trim()}”.</p>}
+          {!query.trim() && matches.length > PAGE_SIZE && (
+            <p className="note" style={{ paddingTop: 12 }}>
+              Showing {PAGE_SIZE} of {matches.length} teams. Search to find the rest.
+            </p>
+          )}
         </section>
         <section>
           <h2 className="cd label">Following</h2>
