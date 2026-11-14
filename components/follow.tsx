@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "@supabase/supabase-js";
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 
 const STORAGE_KEY = "rally-follow";
@@ -22,38 +22,60 @@ const Ctx = createContext<FollowContext | null>(null);
 
 export const teamKey = (sport: string, teamId: string) => `${sport}:${teamId}`;
 
-function readLocal(): string[] {
+const listeners = new Set<() => void>();
+let snapshot: string | null = null;
+
+function readSnapshot(): string {
+  if (snapshot === null) {
+    try {
+      snapshot = localStorage.getItem(STORAGE_KEY) ?? "[]";
+    } catch {
+      snapshot = "[]";
+    }
+  }
+  return snapshot;
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  const onStorage = (e: StorageEvent) => {
+    if (e.key === STORAGE_KEY) {
+      snapshot = null;
+      listener();
+    }
+  };
+  window.addEventListener("storage", onStorage);
+  return () => {
+    listeners.delete(listener);
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+function parseKeys(raw: string): string[] {
   try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
+    const stored = JSON.parse(raw);
     return Array.isArray(stored) ? stored.filter((k): k is string => typeof k === "string") : [];
   } catch {
     return [];
   }
 }
 
-function writeLocal(keys: string[]) {
+function writeKeys(keys: string[]) {
+  snapshot = JSON.stringify(keys);
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(keys));
+    localStorage.setItem(STORAGE_KEY, snapshot);
   } catch {}
+  listeners.forEach((l) => l());
 }
 
+const subscribeNever = () => () => {};
+
 export function FollowProvider({ children }: { children: ReactNode }) {
-  const [keys, setKeys] = useState<string[]>([]);
-  const [ready, setReady] = useState(false);
+  const raw = useSyncExternalStore(subscribe, readSnapshot, () => "[]");
+  const ready = useSyncExternalStore(subscribeNever, () => true, () => false);
+  const keys = useMemo(() => parseKeys(raw), [raw]);
   const [user, setUser] = useState<User | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
-  const keysRef = useRef<string[]>([]);
-
-  const commit = useCallback((next: string[]) => {
-    keysRef.current = next;
-    setKeys(next);
-    writeLocal(next);
-  }, []);
-
-  useEffect(() => {
-    commit(readLocal());
-    setReady(true);
-  }, [commit]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -71,41 +93,41 @@ export function FollowProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase.from("follows").select("team_key");
       if (cancelled) return;
       if (error) {
-        setSyncError("Couldn't sync your teams. They're saved on this device.");
+        setSyncError("Couldn’t sync your teams. They’re saved on this device.");
         return;
       }
       const remote = (data ?? []).map((r) => r.team_key as string);
-      const merged = Array.from(new Set([...keysRef.current, ...remote]));
+      const merged = Array.from(new Set([...parseKeys(readSnapshot()), ...remote]));
       const missing = merged.filter((k) => !remote.includes(k));
       if (missing.length > 0) {
         const { error: upsertError } = await supabase
           .from("follows")
           .upsert(missing.map((team_key) => ({ team_key })), { onConflict: "user_id,team_key", ignoreDuplicates: true });
-        if (upsertError) setSyncError("Couldn't sync your teams. They're saved on this device.");
-        else setSyncError(null);
+        setSyncError(upsertError ? "Couldn’t sync your teams. They’re saved on this device." : null);
       } else {
         setSyncError(null);
       }
-      commit(merged);
+      writeKeys(merged);
     })();
     return () => {
       cancelled = true;
     };
-  }, [userId, ready, commit]);
+  }, [userId, ready]);
 
   const toggle = useCallback(
     (key: string) => {
-      const adding = !keysRef.current.includes(key);
-      commit(adding ? [...keysRef.current, key] : keysRef.current.filter((k) => k !== key));
+      const current = parseKeys(readSnapshot());
+      const adding = !current.includes(key);
+      writeKeys(adding ? [...current, key] : current.filter((k) => k !== key));
       if (!supabase || !userId) return;
       const request = adding
         ? supabase.from("follows").upsert({ team_key: key }, { onConflict: "user_id,team_key", ignoreDuplicates: true })
         : supabase.from("follows").delete().eq("team_key", key);
       request.then(({ error }) =>
-        setSyncError(error ? "Couldn't sync that change. It's saved on this device." : null),
+        setSyncError(error ? "Couldn’t sync that change. It’s saved on this device." : null),
       );
     },
-    [commit, userId],
+    [userId],
   );
 
   const signInWithEmail = useCallback(async (email: string) => {

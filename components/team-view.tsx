@@ -105,7 +105,7 @@ export function TeamView({ team, league }: { team: TeamDetail; league: LeagueId 
       )}
       <section className="section">
         <h2 className="cd label">Roster</h2>
-        {roster.length === 0 && <p className="note">ESPN doesn't publish a roster for this team.</p>}
+        {roster.length === 0 && <p className="note">ESPN doesn’t publish a roster for this team.</p>}
         {roster.map((g) => (
           <div key={g.position}>
             <h3 className="tl-group">{g.position}</h3>

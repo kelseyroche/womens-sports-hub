@@ -12,7 +12,7 @@ export function AccountPanel({ showUnavailable = false }: { showUnavailable?: bo
 
   if (!syncAvailable) {
     return showUnavailable ? (
-      <p className="note">Accounts aren't turned on for this site yet. Your teams are saved on this device.</p>
+      <p className="note">Accounts aren’t turned on for this site yet. Your teams are saved on this device.</p>
     ) : null;
   }
 
