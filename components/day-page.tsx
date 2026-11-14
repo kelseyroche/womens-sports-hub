@@ -13,7 +13,7 @@ export async function DayPage({ offset }: { offset: 0 | 1 }) {
 
   if (games.length === 0) {
     const next = await getNextGames(day, 4);
-    return <QuietView dateLabel={dateLabel} next={next} today={today} when={offset === 0 ? "tonight" : "tomorrow"} />;
+    return <QuietView dateLabel={dateLabel} next={next} today={today} when={offset === 0 ? "today" : "tomorrow"} />;
   }
-  return <TonightView games={games} dateLabel={dateLabel} title={offset === 0 ? "Tonight" : "Tomorrow"} />;
+  return <TonightView games={games} dateLabel={dateLabel} title={offset === 0 ? "Today" : "Tomorrow"} />;
 }

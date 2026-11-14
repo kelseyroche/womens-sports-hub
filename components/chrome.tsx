@@ -44,10 +44,11 @@ export function Band() {
 export function Nav() {
   const pathname = usePathname();
   const links = [
-    { href: "/", label: "Tonight" },
+    { href: "/", label: "Today" },
     { href: "/tomorrow", label: "Tomorrow" },
     { href: "/upcoming", label: "Upcoming" },
     { href: "/following", label: "Following" },
+    { href: "/account", label: "Account" },
   ];
   return (
     <nav className="nav" aria-label="Main">

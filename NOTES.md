@@ -2,6 +2,10 @@
 
 One app to follow women's sports across leagues. Personal project, not DroneDeploy.
 
+## Two repos
+
+This web app and the iPhone app (`../womens-sports-hub-ios`, SwiftUI) are built in parallel. Every feature lands in both. A shared backend for synced follows and push alerts is the later option.
+
 ## Values
 
 - No monetary gambling. No odds, spreads, betting lines, sportsbook sponsors, or promo codes anywhere: UI, data, copy, or partnerships.
@@ -12,7 +16,7 @@ One app to follow women's sports across leagues. Personal project, not DroneDepl
 
 - Stack: Next.js 16, TypeScript, Tailwind. Web first, phone-friendly.
 - Data: ESPN unofficial API (`site.api.espn.com/apis/site/v2/sports/{path}/scoreboard?dates=YYYYMMDD`). Free, no key, can break without notice.
-- v1 scope: Tonight dashboard plus follow teams, stored in the browser. No accounts.
+- v1 scope: Today dashboard plus follow teams, stored in the browser. No accounts.
 - Repo: local git only. The remote is created by hand on a personal GitHub account.
 
 ## Leagues
@@ -31,16 +35,16 @@ One app to follow women's sports across leagues. Personal project, not DroneDepl
 - Draft palette (open to change): aubergine ink `#1F1632`, lilac chalk `#F1EEF8`, floodlight yellow `#FFC83D` for live games only.
 - League hues: WNBA `#F0643A`, NWSL `#2347C9`, WSL `#8A3FFC`, NCAAW `#0F9D8A`.
 - Draft type: Bricolage Grotesque for display, Figtree for body.
-- Idea to test: Tonight as a timeline, with games placed by tip-off time.
+- Idea to test: Today as a timeline, with games placed by tip-off time.
 - Avoid: cream + serif + terracotta, near-black + neon accent, identical soft-shadow cards, all-caps labels above every heading, pink-and-purple cliches.
 - Waiting on: Canva storyboards and Claude Design directions. UI build starts after a direction is picked.
-- Screens needed: Tonight dashboard (desktop and mobile), empty state, game card (upcoming, live, final), follow teams.
+- Screens needed: Today dashboard (desktop and mobile), empty state, game card (upcoming, live, final), follow teams.
 
 ## Open questions
 
 - Source for PWHL (no ESPN endpoint).
 - USWNT schedule source.
-- Offseason empty state: many leagues have no games for months, so "tonight" is often sparse.
+- Offseason empty state: many leagues have no games for months, so "today" is often sparse.
 - NYC women's sports view: which teams count (Liberty, Gotham FC, NY Sirens, others)?
 - Following a player across leagues: ESPN athlete IDs differ per league, so this needs a mapping.
 
@@ -54,7 +58,7 @@ One app to follow women's sports across leagues. Personal project, not DroneDepl
 
 ## Status
 
-- Done: scaffold, ESPN data layer, Rally-inspired shell (brand band, nav, footer), Tonight page, quiet-night state, Following page, follow state in localStorage. Builds clean, desktop screenshots checked, nothing committed.
+- Done: scaffold, ESPN data layer, Rally-inspired shell (brand band, nav, footer), Today page, quiet-day state, Following page, follow state in localStorage. Builds clean, desktop screenshots checked, nothing committed.
 - Design source: ~/Downloads/Rally2.html is inspiration, not a spec. Name "Rally" is a placeholder.
 - Not yet checked: real mobile width, clicking through the follow flow, quiet-night view (needs a day with no games).
 - Next: mobile pass, standings/results, NYC view, PWHL source.

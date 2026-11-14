@@ -3,7 +3,7 @@ import type { Game } from "@/lib/espn";
 import { clockTime, dayLabel } from "@/lib/time";
 import { GameTile } from "./game-tile";
 
-export function QuietView({ dateLabel, next, today, when }: { dateLabel: string; next: Game[]; today: string; when: "tonight" | "tomorrow" }) {
+export function QuietView({ dateLabel, next, today, when }: { dateLabel: string; next: Game[]; today: string; when: "today" | "tomorrow" }) {
   const first = next[0];
   const firstTime = first ? clockTime(first.startsAt) : null;
   return (
@@ -14,7 +14,7 @@ export function QuietView({ dateLabel, next, today, when }: { dateLabel: string;
           <h1 className="cd">
             Nothing
             <br />
-            on {when}.
+            {when}.
           </h1>
           <p className="lede">
             {first && firstTime

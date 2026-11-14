@@ -78,10 +78,12 @@ export function GameTile({ game, size }: { game: Game; size: TileSize }) {
         {sides.map((side, i) => (
           <div className="team" key={side.id} style={{ gridRow: i + 1 }}>
             <Crest side={side} />
-            <b>
-              {side.rank && <span className="rank n">{side.rank}</span>}
-              {side.name}
-            </b>
+            <Link href={`/team/${game.league}/${side.id}`} className="team-link">
+              <b>
+                {side.rank && <span className="rank n">{side.rank}</span>}
+                {side.name}
+              </b>
+            </Link>
           </div>
         ))}
         {upcoming ? (

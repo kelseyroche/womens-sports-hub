@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Team } from "@/lib/espn";
 import { GROUPS, GROUP_BY_ID, type GroupId } from "@/lib/leagues";
+import Link from "next/link";
 import { teamKey, useFollow } from "./follow";
 
 function Crest({ team }: { team: Team }) {
@@ -21,13 +22,35 @@ function Crest({ team }: { team: Team }) {
 const PAGE_SIZE = 60;
 
 export function FollowingView({ teams }: { teams: Record<GroupId, Team[]> }) {
-  const { followed, toggle } = useFollow();
+  const { followed, toggle, syncAvailable, user } = useFollow();
   const [tab, setTab] = useState<GroupId>("wnba");
   const count = followed.size;
   const sport = GROUP_BY_ID[tab].sport;
   const [query, setQuery] = useState("");
-  const matches = teams[tab].filter((t) => t.name.toLowerCase().includes(query.trim().toLowerCase()));
-  const visible = query.trim() ? matches : matches.slice(0, PAGE_SIZE);
+  const q = query.trim().toLowerCase();
+  const matches = teams[tab].filter((t) => t.name.toLowerCase().includes(q));
+  const popular = q ? [] : matches.filter((t) => t.popular);
+  const others = q ? matches : matches.filter((t) => !t.popular).slice(0, PAGE_SIZE);
+  const hiddenCount = q ? 0 : matches.filter((t) => !t.popular).length - others.length;
+  const popularLabel = tab === "ncaaw" || tab === "ncaav" ? "Top 25" : "Popular";
+
+  const renderRow = (t: Team) => {
+    const on = followed.has(teamKey(sport, t.id));
+    return (
+      <div className="trow" key={t.id}>
+        <Link href={`/team/${t.leagueId}/${t.id}`} className="trow-link">
+          <Crest team={t} />
+          <span className="nm">
+            {t.rank !== null && <span className="rank n">{t.rank}</span>}
+            {t.name}
+          </span>
+        </Link>
+        <button className="fbtn" aria-pressed={on} onClick={() => toggle(teamKey(sport, t.id))}>
+          {on ? "Following" : "Follow team"}
+        </button>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -38,7 +61,7 @@ export function FollowingView({ teams }: { teams: Record<GroupId, Team[]> }) {
           teams
         </h1>
         <p className="summary">
-          Pick the teams you care about. Their games are pinned above everything else on Tonight.
+          Pick the teams you care about. Their games are pinned above everything else on the Today tab.
         </p>
       </div>
       <div className="follow-grid">
@@ -69,22 +92,14 @@ export function FollowingView({ teams }: { teams: Record<GroupId, Team[]> }) {
             />
           )}
           {teams[tab].length === 0 && <p className="note">Teams for this league didn’t load. Refresh to try again.</p>}
-          {visible.map((t) => {
-            const on = followed.has(teamKey(sport, t.id));
-            return (
-              <div className="trow" key={t.id}>
-                <Crest team={t} />
-                <span className="nm">{t.name}</span>
-                <button className="fbtn" aria-pressed={on} onClick={() => toggle(teamKey(sport, t.id))}>
-                  {on ? "Following" : "Follow team"}
-                </button>
-              </div>
-            );
-          })}
-          {query.trim() && matches.length === 0 && <p className="note">No teams match “{query.trim()}”.</p>}
-          {!query.trim() && matches.length > PAGE_SIZE && (
+          {popular.length > 0 && <h3 className="tl-group">{popularLabel}</h3>}
+          {popular.map(renderRow)}
+          {popular.length > 0 && others.length > 0 && <h3 className="tl-group">All teams</h3>}
+          {others.map(renderRow)}
+          {q && matches.length === 0 && <p className="note">No teams match “{query.trim()}”.</p>}
+          {hiddenCount > 0 && (
             <p className="note" style={{ paddingTop: 12 }}>
-              Showing {PAGE_SIZE} of {matches.length} teams. Search to find the rest.
+              {hiddenCount} more teams. Search to find any team.
             </p>
           )}
         </section>
@@ -92,17 +107,24 @@ export function FollowingView({ teams }: { teams: Record<GroupId, Team[]> }) {
           <h2 className="cd label">Following</h2>
           <p className="note" style={{ margin: "8px 0" }}>
             {count === 1 ? "1 team followed" : `${count} teams followed`}. Followed teams stay above everything
-            else on Tonight, even when they play late.
+            else on the Today tab, even when they play late.
           </p>
           {GROUPS.flatMap((g) =>
             teams[g.id]
               .filter((t) => followed.has(teamKey(g.sport, t.id)))
               .map((t) => (
                 <div className="trow" key={`${g.id}:${t.id}`}>
-                  <Crest team={t} />
-                  <span className="nm">{t.name}</span>
+                  <Link href={`/team/${t.leagueId}/${t.id}`} className="trow-link">
+                    <Crest team={t} />
+                    <span className="nm">{t.name}</span>
+                  </Link>
                 </div>
               )),
+          )}
+          {syncAvailable && !user && (
+            <p className="note" style={{ paddingTop: 16 }}>
+              Your teams are saved on this device only. <Link href="/account">Sign in</Link> to keep them on every device.
+            </p>
           )}
         </section>
       </div>

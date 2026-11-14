@@ -19,7 +19,13 @@ function Facts({ player }: { player: PlayerDetail }) {
       {facts.map(([k, v]) => (
         <div key={k}>
           <dt>{k}</dt>
-          <dd>{v}</dd>
+          <dd className="pl-fact-value">
+            {k === "Nationality" && player.flag && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className="pl-flag" src={player.flag} alt="" />
+            )}
+            {v}
+          </dd>
         </div>
       ))}
     </dl>
@@ -78,7 +84,13 @@ export function PlayerView({ player, league }: { player: PlayerDetail; league: L
         <div className="pl-id">
           <h1 className="cd pl-name">{player.name}</h1>
           <p className="pl-line">
-            {[player.position, player.team?.name].filter(Boolean).join(" · ")}
+            {player.position}
+            {player.position && player.team && " · "}
+            {player.team && (
+              <Link className="team-link" href={`/team/${league}/${player.team.id}`} style={{ textDecoration: "underline" }}>
+                {player.team.name}
+              </Link>
+            )}
           </p>
         </div>
         {player.jersey && <span className="cd n pl-jersey">{player.jersey}</span>}

@@ -102,7 +102,15 @@ export async function getNextGames(fromDay: string, limit: number): Promise<Game
   return found.sort((a, b) => a.startsAt.localeCompare(b.startsAt)).slice(0, limit);
 }
 
-export type Team = { id: string; name: string; abbreviation: string; logo: string | null };
+export type Team = {
+  id: string;
+  name: string;
+  abbreviation: string;
+  logo: string | null;
+  rank: number | null;
+  popular: boolean;
+  leagueId: LeagueId;
+};
 
 type EspnTeamsBody = {
   sports?: {
@@ -112,7 +120,28 @@ type EspnTeamsBody = {
   }[];
 };
 
-async function fetchTeams(leagueId: LeagueId): Promise<Team[]> {
+const POPULAR_NATIONAL = [
+  "United States", "England", "Spain", "Germany", "France", "Brazil", "Canada", "Japan", "Australia", "Sweden",
+  "Netherlands", "Italy", "Norway", "Mexico", "Denmark", "Colombia", "Scotland", "Wales", "South Korea", "Nigeria",
+];
+
+const RANKING_PATHS: Partial<Record<GroupId, string>> = {
+  ncaaw: "basketball/womens-college-basketball",
+  ncaav: "volleyball/womens-college-volleyball",
+};
+
+async function fetchRanks(groupId: GroupId): Promise<Map<string, number>> {
+  const path = RANKING_PATHS[groupId];
+  const ranks = new Map<string, number>();
+  if (!path) return ranks;
+  const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${path}/rankings`);
+  if (!res.ok) return ranks;
+  const body = (await res.json()) as { rankings?: { ranks?: { current: number; team: { id: string } }[] }[] };
+  for (const r of body.rankings?.[0]?.ranks ?? []) ranks.set(r.team.id, r.current);
+  return ranks;
+}
+
+async function fetchTeams(leagueId: LeagueId): Promise<Omit<Team, "rank" | "popular">[]> {
   const league = LEAGUE_BY_ID[leagueId];
   const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${league.path}/teams?limit=500`);
   if (!res.ok) return [];
@@ -122,17 +151,37 @@ async function fetchTeams(leagueId: LeagueId): Promise<Team[]> {
     name: team.displayName,
     abbreviation: team.abbreviation ?? team.displayName.slice(0, 3).toUpperCase(),
     logo: team.logos?.[0]?.href ?? null,
+    leagueId,
   }));
 }
 
 export async function getGroupTeams(groupId: GroupId): Promise<Team[]> {
   "use cache";
-  cacheLife("days");
-  const lists = await Promise.allSettled(GROUP_BY_ID[groupId].teamSources.map(fetchTeams));
+  cacheLife("hours");
+  const sources = GROUP_BY_ID[groupId].teamSources;
+  const [lists, ranks] = await Promise.all([Promise.allSettled(sources.map(fetchTeams)), fetchRanks(groupId)]);
+  const firstSourceIds = new Set<string>();
   const byId = new Map<string, Team>();
-  for (const r of lists) {
-    if (r.status !== "fulfilled") continue;
-    for (const t of r.value) if (!byId.has(t.id)) byId.set(t.id, t);
-  }
-  return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name));
+  lists.forEach((r, index) => {
+    if (r.status !== "fulfilled") return;
+    for (const t of r.value) {
+      if (index === 0 && sources.length > 1 && groupId === "europe") firstSourceIds.add(t.id);
+      if (!byId.has(t.id)) byId.set(t.id, { ...t, rank: ranks.get(t.id) ?? null, popular: false });
+    }
+  });
+  const popularIndex = (t: Team) => (groupId === "national" ? POPULAR_NATIONAL.indexOf(t.name) : -1);
+  const teams = [...byId.values()].map((t) => ({
+    ...t,
+    popular: t.rank !== null || firstSourceIds.has(t.id) || popularIndex(t) >= 0,
+  }));
+  return teams.sort((a, b) => {
+    if (a.rank !== null || b.rank !== null) {
+      if (a.rank === null) return 1;
+      if (b.rank === null) return -1;
+      return a.rank - b.rank;
+    }
+    if (a.popular !== b.popular) return a.popular ? -1 : 1;
+    if (groupId === "national" && a.popular && b.popular) return popularIndex(a) - popularIndex(b);
+    return a.name.localeCompare(b.name);
+  });
 }

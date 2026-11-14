@@ -6,7 +6,7 @@ import { useFollow } from "./follow";
 import { CompactRow, usePartition } from "./game-list";
 import { GameTile } from "./game-tile";
 
-export function TonightView({ games, dateLabel, title }: { games: Game[]; dateLabel: string; title: "Tonight" | "Tomorrow" }) {
+export function TonightView({ games, dateLabel, title }: { games: Game[]; dateLabel: string; title: "Today" | "Tomorrow" }) {
   const when = title.toLowerCase();
   const { ready } = useFollow();
   const { pinned, featured, more } = usePartition(games);

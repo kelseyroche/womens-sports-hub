@@ -23,6 +23,7 @@ export type PlayerDetail = {
   age: number | null;
   birthplace: string | null;
   citizenship: string | null;
+  flag: string | null;
   experience: string | null;
   headshot: string | null;
   team: { id: string; name: string; logo: string | null } | null;
@@ -43,6 +44,7 @@ type AthleteBody = {
     age?: number;
     displayBirthPlace?: string;
     citizenship?: string;
+    flag?: { href?: string; alt?: string };
     displayExperience?: string;
     headshot?: { href?: string };
     team?: { id: string; displayName: string; logos?: { href: string }[] };
@@ -114,7 +116,8 @@ export async function getPlayer(leagueId: LeagueId, athleteId: string): Promise<
     weight: athlete.displayWeight ?? null,
     age: athlete.age ?? null,
     birthplace: athlete.displayBirthPlace ?? null,
-    citizenship: athlete.citizenship ?? null,
+    citizenship: athlete.citizenship ?? athlete.flag?.alt ?? null,
+    flag: athlete.flag?.href ?? null,
     experience: athlete.displayExperience ?? null,
     headshot: athlete.headshot?.href ?? null,
     team: athlete.team

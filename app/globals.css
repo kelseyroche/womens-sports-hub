@@ -778,6 +778,11 @@ footer.site {
   font-weight: 600;
 }
 
+.more-row > span:first-child {
+  font-size: 16px;
+  font-weight: 800;
+}
+
 .more-row .who {
   display: flex;
   flex-direction: column;
@@ -1222,4 +1227,230 @@ a.more-row:hover .who span:first-child {
     width: 80px;
     height: 80px;
   }
+}
+
+.account {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.account-sent {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.account-error {
+  font-size: 14px;
+  font-weight: 600;
+  color: #b3261e;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.pl-fact-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pl-flag {
+  width: 28px;
+  height: 20px;
+  object-fit: cover;
+  border: 1px solid var(--rule);
+}
+
+.tl-group {
+  margin: 18px 0 2px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--soft);
+}
+
+.account-page {
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.account-page .account {
+  margin-top: 0;
+}
+
+.team-follow {
+  align-self: center;
+  background: var(--chalk);
+}
+
+.team-follow[aria-pressed="true"] {
+  background: var(--ink);
+}
+
+.tm-crest {
+  width: 120px;
+  height: 120px;
+}
+
+.tm-crest img {
+  object-fit: contain;
+  padding: 14px;
+}
+
+.tm-row,
+.ro-row {
+  display: grid;
+  align-items: center;
+  gap: 4px 14px;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule);
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.tm-row {
+  grid-template-columns: 110px minmax(0, 1fr) auto;
+}
+
+.tm-date {
+  display: flex;
+  flex-direction: column;
+}
+
+.tm-time {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--soft);
+}
+
+.tm-opp {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+}
+
+.tm-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.tm-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 17px;
+}
+
+.tm-wl {
+  display: inline-block;
+  min-width: 24px;
+  padding: 1px 6px;
+  text-align: center;
+  color: var(--chalk);
+}
+
+.tm-W {
+  background: var(--emerald);
+}
+
+.tm-L {
+  background: #b3261e;
+}
+
+.tm-D {
+  background: var(--soft);
+}
+
+a.tm-link:hover .tm-opp {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ro-row {
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+}
+
+.ro-num {
+  font-weight: 800;
+}
+
+.ro-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ro-flag {
+  width: 22px;
+  height: 15px;
+  object-fit: cover;
+  border: 1px solid var(--rule);
+}
+
+.ro-meta {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--soft);
+}
+
+a.ro-row:hover .ro-name {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .tm-row {
+    grid-template-columns: 84px minmax(0, 1fr) auto;
+  }
+  .tm-crest {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+.trow-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.trow-link:hover .nm {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.team-link {
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.team-link:hover b {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tl-toggle {
+  align-self: flex-start;
+  margin-top: 8px;
 }

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import type { GameDetail, DetailSide, StatRow, TimelineItem } from "@/lib/game-detail";
+import type { GameDetail, DetailSide, StatRow } from "@/lib/game-detail";
 import { GROUP_BY_ID, LEAGUE_BY_ID } from "@/lib/leagues";
 import { clockTime, longDate } from "@/lib/time";
 import { LiveRefresh } from "./live-refresh";
+import { Timeline } from "./timeline";
 
 function Crest({ side }: { side: DetailSide }) {
   return (
@@ -75,7 +76,9 @@ function Scoreboard({ detail }: { detail: GameDetail }) {
           <div className="gd-team" key={side.id}>
             <Crest side={side} />
             <div className="gd-name">
-              <b>{side.name}</b>
+              <Link href={`/team/${detail.league}/${side.id}`} className="team-link">
+                <b>{side.name}</b>
+              </Link>
               {side.record && <span className="gd-rec n">{side.record}</span>}
             </div>
             <div
@@ -94,39 +97,6 @@ function Scoreboard({ detail }: { detail: GameDetail }) {
         {detail.venue ? ` · ${detail.venue}` : ""}
         {detail.attendance ? ` · ${detail.attendance.toLocaleString("en-US")} attended` : ""}
       </p>
-    </section>
-  );
-}
-
-function EventMark({ kind }: { kind: TimelineItem["kind"] }) {
-  if (kind === "goal" || kind === "score") return <span className="ev-mark ev-goal" aria-hidden="true" />;
-  if (kind === "yellow") return <span className="ev-mark ev-card" style={{ background: "#F5E50A" }} aria-hidden="true" />;
-  if (kind === "red") return <span className="ev-mark ev-card" style={{ background: "#E0362C" }} aria-hidden="true" />;
-  if (kind === "sub") return <span className="ev-mark ev-sub" aria-hidden="true" />;
-  return <span className="ev-mark ev-tick" aria-hidden="true" />;
-}
-
-function Timeline({ detail }: { detail: GameDetail }) {
-  if (detail.timeline.length === 0) return null;
-  const title = detail.sport === "basketball" ? "Scoring plays" : "Match events";
-  const sideOf = (id: string | null) => (id === detail.home.id ? detail.home : id === detail.away.id ? detail.away : null);
-  return (
-    <section className="section">
-      <h2 className="cd label">{title}</h2>
-      <ol className="tl">
-        {detail.timeline.map((e) => (
-          <li key={e.id} className={`tl-row tl-${e.kind}`}>
-            <span className="tl-clock n">{e.clock}</span>
-            <EventMark kind={e.kind} />
-            <span className="tl-what">
-              <span className="tl-title">{e.title}</span>
-              {e.detail && <span className="tl-detail">{e.detail}</span>}
-              {sideOf(e.teamId) && e.kind !== "score" && <span className="tl-detail">{sideOf(e.teamId)?.name}</span>}
-            </span>
-            {e.score && <span className="tl-score cd n">{e.score}</span>}
-          </li>
-        ))}
-      </ol>
     </section>
   );
 }
@@ -251,13 +221,18 @@ export function GameDetailView({ detail }: { detail: GameDetail }) {
     <>
       {detail.state === "live" && <LiveRefresh />}
       <Link className="gd-back" href="/">
-        Back to Tonight
+        Back to Today
       </Link>
       <Scoreboard detail={detail} />
       {detail.state === "upcoming" && (
         <p className="note">This game hasn’t started. Scores, events and stats appear here once it does.</p>
       )}
-      <Timeline detail={detail} />
+      <Timeline
+        items={detail.timeline}
+        title={detail.sport === "basketball" ? "Scoring plays" : "Match events"}
+        home={{ id: detail.home.id, name: detail.home.name }}
+        away={{ id: detail.away.id, name: detail.away.name }}
+      />
       <Stats rows={detail.stats} detail={detail} />
       <Lineups detail={detail} />
       <BoxScores detail={detail} />

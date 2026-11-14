@@ -18,7 +18,7 @@ export const GROUPS: Group[] = [
   { id: "nwsl", label: "NWSL", sport: "soccer", hue: "#0EA66B", teamSources: ["nwsl"] },
   { id: "england", label: "England", sport: "soccer", hue: "#FF5AA5", teamSources: ["wsl"] },
   { id: "europe", label: "Europe", sport: "soccer", hue: "#4DB5FF", teamSources: ["uwcl", "liga-f", "premiere-ligue"] },
-  { id: "national", label: "National teams", sport: "soccer", hue: "#3D5AFE", teamSources: ["friendlies"] },
+  { id: "national", label: "National teams", sport: "soccer", hue: "#3D5AFE", teamSources: ["world-cup", "euro", "nations-league", "friendlies"] },
 ];
 
 export const GROUP_BY_ID = Object.fromEntries(GROUPS.map((g) => [g.id, g])) as Record<GroupId, Group>;
