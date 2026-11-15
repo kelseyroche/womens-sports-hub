@@ -1504,3 +1504,7 @@ a.ro-row:hover .ro-name {
   flex-direction: column;
   gap: 8px;
 }
+
+.account-team {
+  padding: 8px 0;
+}
